@@ -23,30 +23,36 @@ app.post('/results', async (req, res) => {
     res.send(results);
 });
 
+const sanitizeFilename = require('sanitize-filename');
+
 app.post('/get', async (req, res) => {
     const videoId = req.body.videoId;
-    const title= req.body.title;
+    const title = sanitizeFilename(req.body.title); // Sanitize the title
     const filePath = path.join(__dirname, title + '.mkv');
-    console.log('the filepath is ', filePath);
-    await downloadYTvideo(videoId, title);
-    if (fs.existsSync(filePath)) {
-        res.download(filePath, (err) => {
-            if (err) {
-                console.error('Error sending file:', err);
-            } else {
-                fs.unlink(filePath, (err) => {
-                    if (err) {
-                        console.error('Error deleting file:', err);
-                    } else {
-                        console.log('File deleted successfully');
-                    }
-                });
-            }
-        });
-    } else {
-        res.status(404).send('File not found');
+
+    try {
+        await downloadYTvideo(videoId, title);
+        if (fs.existsSync(filePath)) {
+            res.download(filePath, (err) => {
+                if (err) {
+                    console.error('Error sending file:', err);
+                } else {
+                    fs.unlink(filePath, (err) => {
+                        if (err) {
+                            console.error('Error deleting file:', err);
+                        }
+                    });
+                }
+            });
+        } else {
+            res.status(404).send('File not found');
+        }
+    } catch (error) {
+        console.error('Error downloading video:', error);
+        res.status(500).send('Internal server error');
     }
 });
+
 
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}/`);
@@ -86,20 +92,16 @@ function prepareElement(item) {
             </li>`;
 }
 
-async function downloadYTvideo(videoUrl, title) {
+async function downloadYTvideo(videoId, title) {
     return new Promise(async (resolve, reject) => {
-        console.log('the url i got is ', videoUrl);
-        let newUrl = 'https://www.youtube.com/watch?v=' + videoUrl;
         try {
+            const newUrl = 'https://www.youtube.com/watch?v=' + videoId;
             const info = await ytdl.getInfo(newUrl);
             const video = ytdl(newUrl, { filter: 'audioonly' });
-            video.pipe(fs.createWriteStream(`${title}.mkv`));
-            video.on('end', () => {
-                console.log('video downloaded');
-                resolve();
-            });
+            video.pipe(fs.createWriteStream(path.join(__dirname, `${title}.mkv`))); // Save in the correct directory
+            video.on('end', resolve);
+            video.on('error', reject); // Handle video errors
         } catch (error) {
-            console.error('Error downloading video:', error);
             reject(error);
         }
     });
