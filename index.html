@@ -1,37 +1,61 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Youtube Downloader</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <style>
-        #loading {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border-top: 4px solid black;
-            animation: spin 1s linear infinite;
-            display: none; /* Initially hidden */
-        }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
 </head>
 <body>
-<form hx-post="/results" hx-target="#results" hx-indicator="#loading">
-    <label>Desired song
-        <input name="videoLink" id="videoLink" type="text">
-    </label>
-    <button>
-        Click Me
-    </button>
-</form>
-<div id="loading"></div>
-<div id="results"></div>
+<h1>Welcome to the youtube downloader here you will be able to download your favourite videos</h1>
+<details role="list">
+    <summary aria-haspopup="listbox" role="button" class="secondary">Select your mode</summary>
+    <ul role="listbox">
+        <li><a href="/link" data-theme-switcher="light">I have the video link</a></li>
+        <li><a href="/search"  data-theme-switcher="light">I want to search a video</a></li>
+    </ul>
+</details>
+<div>
+</div>
+<section id="loading">
+    <h2>Loading</h2>
+    <article aria-busy="true"></article>
+    <button aria-busy="true">Please wait…</button>
+</section>
+<section id="preview">
+    <h2>Preview</h2>
+    <p>
+        Sed ultricies dolor non ante vulputate hendrerit. Vivamus sit amet suscipit sapien. Nulla
+        iaculis eros a elit pharetra egestas.
+    </p>
+    <form>
+        <div class="grid">
+            <input
+                    type="text"
+                    name="firstname"
+                    placeholder="First name"
+                    aria-label="First name"
+                    required
+            />
+            <input
+                    type="email"
+                    name="email"
+                    placeholder="Email address"
+                    aria-label="Email address"
+                    required
+            />
+            <button type="submit">Subscribe</button>
+        </div>
+        <fieldset>
+            <label for="terms">
+                <input type="checkbox" role="switch" id="terms" name="terms" />
+                I agree to the <a href="#" onclick="event.preventDefault()">Privacy Policy</a>
+            </label>
+        </fieldset>
+    </form>
+</section>
 </body>
 </html>

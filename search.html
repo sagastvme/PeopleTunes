@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+
+</head>
+<body>
+<form hx-post="/results" hx-target="#results" hx-indicator="#loading">
+  <label>Desired song
+    <input required name="videoLink" id="videoLink" type="text">
+  </label>
+  <button>
+    Click Me
+  </button>
+</form>
+<div id="loading"></div>
+<div id="results"></div>
+</body>
+</html>

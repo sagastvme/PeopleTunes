@@ -13,6 +13,27 @@ console.log(`I restarted at: ${formattedDate}`);
 
 app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 
+app.get('/search', (req, res) => {
+    res.sendFile(path.join(__dirname, './search.html'));
+});
+app.get('/link', (req, res) => {
+    res.sendFile(path.join(__dirname, './link.html'));
+});
+app.post('/link', async (req, res) => {
+   const filePath =  await downloadFromLink(req.body.link);
+    res.download(filePath, (err) => {
+        if (err) {
+            console.error('Error sending file:', err);
+        } else {
+            fs.unlink(filePath, (err) => {
+                if (err) {
+                    console.error('Error deleting file:', err);
+                }
+            });
+        }
+    });
+});
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, './index.html'));
 });
@@ -100,6 +121,27 @@ async function downloadYTvideo(videoId, title) {
             const video = ytdl(newUrl, { filter: 'audioonly' });
             video.pipe(fs.createWriteStream(path.join(__dirname, `${title}.mkv`))); // Save in the correct directory
             video.on('end', resolve);
+            video.on('error', reject); // Handle video errors
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+async function downloadFromLink(link) {
+    return new Promise(async (resolve, reject) => {
+        try {
+
+            const info = await ytdl.getInfo(link);
+            let title = info.videoDetails.title;
+            title= sanitizeFilename(title);
+            const video = ytdl(link, { filter: 'audioonly' });
+            video.pipe(fs.createWriteStream(path.join(__dirname, `${title}.mkv`))); // Save in the correct directory
+            video.on('end', ()=>{
+                const filePath = path.join(__dirname, `${title}.mkv`);
+                if (fs.existsSync(filePath)) {
+                    resolve(filePath);
+                }
+            });
             video.on('error', reject); // Handle video errors
         } catch (error) {
             reject(error);
