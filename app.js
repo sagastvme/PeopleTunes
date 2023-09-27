@@ -12,12 +12,16 @@ const formattedDate = currentDate.toLocaleString();
 console.log(`I restarted at: ${formattedDate}`);
 
 app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use('/img', express.static(path.join(__dirname, 'img')));
 
 app.get('/search', (req, res) => {
     res.sendFile(path.join(__dirname, './search.html'));
 });
 app.get('/link', (req, res) => {
     res.sendFile(path.join(__dirname, './link.html'));
+});
+app.get('/audio', (req, res) => {
+    res.sendFile(path.join(__dirname, './audio.html'));
 });
 app.post('/link', async (req, res) => {
    const filePath =  await downloadFromLink(req.body.link);
