@@ -8,6 +8,8 @@
 
 </head>
 <body>
+<main class="container">
+<h1>Look for the video you want to download</h1>
 <form hx-post="/results" hx-target="#results" hx-indicator="#loading">
   <label>Desired song
     <input required name="videoLink" id="videoLink" type="text">
@@ -16,7 +18,9 @@
     Click Me
   </button>
 </form>
-<div id="loading"></div>
+</main>
+
+  <div id="loading"></div>
 <div id="results"></div>
 </body>
 </html>

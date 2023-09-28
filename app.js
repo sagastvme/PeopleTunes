@@ -1,8 +1,8 @@
-const express =require('express');
-const ytsr =require("ytsr");
-const ytdl= require("ytdl-core");
-const path =require("path");
-const fs =require('fs');
+const express = require('express');
+const ytsr = require("ytsr");
+const ytdl = require("ytdl-core");
+const path = require("path");
+const fs = require('fs');
 
 const app = express();
 const port = 8080;
@@ -11,7 +11,7 @@ const currentDate = new Date(Date.now());
 const formattedDate = currentDate.toLocaleString();
 console.log(`I restarted at: ${formattedDate}`);
 
-app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(express.urlencoded({extended: true})); // for parsing application/x-www-form-urlencoded
 app.use('/img', express.static(path.join(__dirname, 'img')));
 
 app.get('/search', (req, res) => {
@@ -24,18 +24,48 @@ app.get('/audio', (req, res) => {
     res.sendFile(path.join(__dirname, './audio.html'));
 });
 app.post('/link', async (req, res) => {
-   const filePath =  await downloadFromLink(req.body.link);
-    res.download(filePath, (err) => {
-        if (err) {
-            console.error('Error sending file:', err);
-        } else {
-            fs.unlink(filePath, (err) => {
+    const link = req.body.link;
+
+    if(req.body?.downloadType && req.body?.quality){
+        const downloadType = req.body.downloadType;
+        const quality = req.body.quality;
+        if (isValidUrl(link) && checkForm(downloadType, quality)) {
+            const filePath = await customDownload(link, downloadType, quality);
+            res.download(filePath, (err) => {
                 if (err) {
-                    console.error('Error deleting file:', err);
+                    console.error('Error sending file:', err);
+                } else {
+                    fs.unlink(filePath, (err) => {
+                        if (err) {
+                            console.error('Error deleting file:', err);
+                        }
+                    });
                 }
             });
+        }else{
+            console.log('the link is ', link)
+            res.status(202).send('Accepted but the processing has failed.'); // Send 202 response on error
         }
-    });
+    }else{
+        if (isValidUrl(link)) {
+            const filePath = await downloadFromLink(req.body.link);
+            res.download(filePath, (err) => {
+                if (err) {
+                    console.error('Error sending file:', err);
+                } else {
+                    fs.unlink(filePath, (err) => {
+                        if (err) {
+                            console.error('Error deleting file:', err);
+                        }
+                    });
+                }
+            });
+        }else{
+            res.status(202).send('Accepted but the processing has failed.'); // Send 202 response on error
+        }
+    }
+
+
 });
 
 app.get('/', (req, res) => {
@@ -84,7 +114,7 @@ app.listen(port, () => {
 });
 
 async function lookFor(test) {
-    const searchResults = await ytsr(test, { limit: 5 });
+    const searchResults = await ytsr(test, {limit: 5});
     let ul = '<ul>';
     searchResults.items.forEach(item => {
         if (item.type !== 'channel') {
@@ -122,7 +152,7 @@ async function downloadYTvideo(videoId, title) {
         try {
             const newUrl = 'https://www.youtube.com/watch?v=' + videoId;
             const info = await ytdl.getInfo(newUrl);
-            const video = ytdl(newUrl, { filter: 'audioonly' });
+            const video = ytdl(newUrl, {filter: 'audioonly'});
             video.pipe(fs.createWriteStream(path.join(__dirname, `${title}.mkv`))); // Save in the correct directory
             video.on('end', resolve);
             video.on('error', reject); // Handle video errors
@@ -131,16 +161,17 @@ async function downloadYTvideo(videoId, title) {
         }
     });
 }
+
 async function downloadFromLink(link) {
     return new Promise(async (resolve, reject) => {
         try {
 
             const info = await ytdl.getInfo(link);
             let title = info.videoDetails.title;
-            title= sanitizeFilename(title);
-            const video = ytdl(link, { filter: 'audioonly' });
+            title = sanitizeFilename(title);
+            const video = ytdl(link, {filter: 'audioonly'});
             video.pipe(fs.createWriteStream(path.join(__dirname, `${title}.mkv`))); // Save in the correct directory
-            video.on('end', ()=>{
+            video.on('end', () => {
                 const filePath = path.join(__dirname, `${title}.mkv`);
                 if (fs.existsSync(filePath)) {
                     resolve(filePath);
@@ -151,4 +182,40 @@ async function downloadFromLink(link) {
             reject(error);
         }
     });
+}
+async function customDownload(link, downloadType, quality) {
+    return new Promise(async function(resolve, reject) {
+        try {
+            const info = await ytdl.getInfo(link);
+            const title = sanitizeFilename(info.videoDetails.title);
+            console.log('the title is ', title)
+            const filter = downloadType.trim().toLowerCase() === 'audio' ? {filter: 'audioonly'} : {filter: 'video'};
+            const fileName = downloadType.trim().toLowerCase() === 'audio' ? `${title}.mp3` : `${title}.mkv`;
+            console.log('the filter is ', filter)
+            const video = ytdl(link, filter);
+            video.pipe(fs.createWriteStream(path.join(__dirname, fileName))); // Save in the correct directory
+            video.on('end', () => resolve(fileName)); // Corrected this line
+            video.on('error', reject); // Handle video errors
+
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+function isValidUrl(string) {
+    try {
+        new URL(string);
+        return true;
+    } catch (err) {
+        return false;
+    }
+}
+
+function checkForm(downloadType, quality) {
+    console.log('the download type is ', downloadType)
+    console.log('the quality type is ', quality);
+    const downloadTypes = ['audio', 'video'];
+    const qualities = ['high', 'fast'];
+    return downloadTypes.includes(downloadType) && qualities.includes(quality);
 }

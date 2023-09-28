@@ -11,9 +11,17 @@
     <h1>I see that you have the link for the video you want to download</h1>
     <form action="/link" method="post">
         <label>Video link
-            <input required type="text" name="link">
+            <input required type="url" name="link">
         </label>
-        <input type="submit" value="Download video">
+        <h2>Download type</h2>
+        <div>
+        <label for="video">Download video <input required type="radio" checked value="video" name="downloadType" id="video"></label>
+        <label for="audio">Download audio <input required value="audio" type="radio" name="downloadType" id="audio"></label>
+        </div>
+        <h2>Download quality</h2>
+        <label for="high">Highest quality<input required type="radio" checked value="high" name="quality" id="high"></label>
+        <label for="fast">Lower quality faster download<input required value="fast" type="radio" name="quality" id="fast"></label>
+            <input type="submit" value="Download video">
     </form>
 
 </main>
