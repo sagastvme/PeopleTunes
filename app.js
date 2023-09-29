@@ -26,11 +26,10 @@ app.get('/audio', (req, res) => {
 app.post('/link', async (req, res) => {
     const link = req.body.link;
 
-    if(req.body?.downloadType && req.body?.quality){
+    if(req.body?.downloadType ){
         const downloadType = req.body.downloadType;
-        const quality = req.body.quality;
-        if (isValidUrl(link) && checkForm(downloadType, quality)) {
-            const filePath = await customDownload(link, downloadType, quality);
+        if (isValidUrl(link) && checkForm(downloadType)) {
+            const filePath = await customDownload(link, downloadType);
             res.download(filePath, (err) => {
                 if (err) {
                     console.error('Error sending file:', err);
@@ -72,11 +71,61 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, './index.html'));
 });
 
+let tempId=null;
+let tempTitle=null;
+app.get('/get/:id', (req, res) => {
+    tempId=req.params.id;
+    res.sendFile(path.join(__dirname, './downloadOption.html'));
+});
+
+app.post('/downloadOption', async (req, res) => {
+    const values = ['audio', 'video'];
+    const selectedOption = req.body.downloadType;
+    if (values.includes(selectedOption) && tempId ) {
+        const newUrl = 'https://www.youtube.com/watch?v=' + tempId;
+        const info = await ytdl.getInfo(newUrl);
+console.log(info.videoDetails.title)
+        const title = sanitizeFilename(info.videoDetails.title); // Sanitize the title
+        try {
+            const filePath=  await customDownload(newUrl, selectedOption);
+            if (fs.existsSync(filePath)) {
+                res.download(filePath, (err) => {
+                    if (err) {
+                        console.error('Error sending file:', err);
+                    } else {
+                        fs.unlink(filePath, (err) => {
+                            if (err) {
+                                console.error('Error deleting file:', err);
+                            }
+                        });
+                    }
+                });
+            } else {
+                res.status(404).send('File not found');
+            }
+        } catch (error) {
+            console.error('Error downloading video:', error);
+            res.status(500).send('Internal server error');
+        }
+    }else{
+        res.status(404).send('File not found and missing parameters');
+    }
+});
+
+
 app.post('/results', async (req, res) => {
     const videoLink = req.body.videoLink;
     const results = await lookFor(videoLink);
     res.send(results);
 });
+
+app.post('/linkResults', async (req, res) => {
+    const videoLink = req.body.videoLink;
+    const results = await generateResultLinks(videoLink);
+    res.send(results);
+});
+
+
 
 const sanitizeFilename = require('sanitize-filename');
 
@@ -113,6 +162,28 @@ app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}/`);
 });
 
+async function generateResultLinks(test){
+    const searchResults = await ytsr(test, {limit: 5});
+    let ul = '<ul>';
+    searchResults.items.forEach(item => {
+        if (item.type !== 'channel') {
+            if (item.type === 'video') {
+                if (item.duration) {
+                    ul += prepareLinkElement(item);
+                }
+            } else if (item.type === 'shelf') {
+                item.items.forEach(item => {
+                    if (item.duration) {
+                        ul += prepareLinkElement(item);
+                    }
+                });
+            }
+        }
+    });
+    ul += '</ul>';
+    return ul;
+}
+
 async function lookFor(test) {
     const searchResults = await ytsr(test, {limit: 5});
     let ul = '<ul>';
@@ -145,6 +216,16 @@ function prepareElement(item) {
                   
                 </form>
             </li>`;
+}
+function prepareLinkElement(item) {
+    const information=`${item.title}, duration: ${item.duration}`
+    const link = `/get/${item.id}`;
+
+    return `<li> 
+<a href="${link}">
+                <img src="${item.bestThumbnail.url}" style="width:100px; height:auto; border-radius:5px;"> 
+<p>${information}</p>`;
+
 }
 
 async function downloadYTvideo(videoId, title) {
@@ -183,15 +264,13 @@ async function downloadFromLink(link) {
         }
     });
 }
-async function customDownload(link, downloadType, quality) {
+async function customDownload(link, downloadType) {
     return new Promise(async function(resolve, reject) {
         try {
             const info = await ytdl.getInfo(link);
             const title = sanitizeFilename(info.videoDetails.title);
-            console.log('the title is ', title)
-            const filter = downloadType.trim().toLowerCase() === 'audio' ? {filter: 'audioonly'} : {filter: 'video'};
+            const filter = downloadType.trim().toLowerCase() === 'audio' ? {filter: 'audioonly',quality: 'highestaudio'} : {filter: 'audioandvideo',quality: 'highestvideo'};
             const fileName = downloadType.trim().toLowerCase() === 'audio' ? `${title}.mp3` : `${title}.mkv`;
-            console.log('the filter is ', filter)
             const video = ytdl(link, filter);
             video.pipe(fs.createWriteStream(path.join(__dirname, fileName))); // Save in the correct directory
             video.on('end', () => resolve(fileName)); // Corrected this line
@@ -212,10 +291,7 @@ function isValidUrl(string) {
     }
 }
 
-function checkForm(downloadType, quality) {
-    console.log('the download type is ', downloadType)
-    console.log('the quality type is ', quality);
+function checkForm(downloadType) {
     const downloadTypes = ['audio', 'video'];
-    const qualities = ['high', 'fast'];
-    return downloadTypes.includes(downloadType) && qualities.includes(quality);
+    return downloadTypes.includes(downloadType) ;
 }
