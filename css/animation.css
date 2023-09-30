@@ -1,0 +1,24 @@
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+
+#loading {
+    animation: spin 1.5s linear infinite !important;
+    width: 30px !important;
+    height: 30px !important;
+    color: white !important;
+}
+
+#centered {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0; /* Reset default margin */
+}
+

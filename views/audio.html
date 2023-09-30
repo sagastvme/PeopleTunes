@@ -5,31 +5,7 @@
     <title>Audio youtube downloader</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
     <script src="https://unpkg.com/htmx.org@1.9.6"></script>
-    <style>
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        #loading {
-            animation: spin 1.5s linear infinite;
-            width: 30px;
-            height: 30px;
-            color: white;
-
-        }
-        #centered {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0; /* Reset default margin */
-        }
-
-    </style>
+    <link rel="stylesheet" href="/css/animation.css">
 </head>
 <body>
 <main class="container">
@@ -48,7 +24,7 @@
         </label>
         <button >
             Click Me
-            <img class="htmx-indicator" id="loading" src="/img/load.svg"/>
+            <img class="htmx-indicator" id="loading" src="../img/load.svg"/>
         </button>
     </form>
     <div id="results"></div>

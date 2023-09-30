@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Title</title>
   <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+  <link rel="stylesheet" href="../css/animation.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
 
 </head>
@@ -14,13 +15,12 @@
   <label>Desired video
     <input required name="videoLink" id="videoLink" type="text">
   </label>
-  <button>
+  <button >
     Click Me
+    <img class="htmx-indicator" id="loading" src="../img/load.svg"/>
   </button>
 </form>
 </main>
-
-  <div id="loading"></div>
 <div id="results"></div>
 </body>
 </html>
