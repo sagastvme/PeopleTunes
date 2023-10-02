@@ -2,41 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Viewport meta tag for responsiveness -->
     <title>Error 400</title>
     <link rel="shortcut icon" href="../img/favicon.ico" type="image/x-icon">
-    
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f7f7f7;
-            font-family: Arial, sans-serif;
+        /* Custom styles for YouTube colors */
+        .yt-red {
+            background-color: #FF0000;
         }
-        .error-container {
-            text-align: center;
-            padding: 40px;
-            border: 1px solid #ff4d4d;
-            background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-        h1 {
-            color: #ff4d4d;
-            font-size: 2em;
-        }
-        p {
-            color: #666;
-            font-size: 1.2em;
+        .hover\:yt-red:hover {
+            background-color: #E62117;
         }
     </style>
 </head>
-<body>
-<div class="error-container">
-    <h1>Error 400</h1>
-    <p>Some of the info you entered is invalid</p>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+<div class="error-container bg-white p-10 border-2 border-red-600 rounded-lg shadow-md">
+    <h1 class="text-red-600 text-4xl mb-4">Error 400</h1>
+    <p class="text-gray-600 text-xl">Some of the info you entered is invalid</p>
 </div>
 </body>
 </html>

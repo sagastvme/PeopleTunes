@@ -46,26 +46,31 @@ async function lookFor(test) {
 }
 
 function prepareElement(item) {
-    return `<li> 
-                <img src="${item.bestThumbnail.url}" style="width:100px; height:auto; border-radius:5px;"> 
-                <form method="post" action="/get">
-                    <input type="hidden" name="videoId" value="${item.id}">
-                    <input type="hidden" name="title" value="${item.title}">
-                    <a href="#" onclick="event.preventDefault(); this.closest('form').submit();">${item.title}, ${item.duration}</a>
-                  
-                </form>
-            </li>`;
+    return `
+    <li class="flex items-center space-x-4 p-4 bg-white rounded-lg shadow-md hover:bg-gray-100 transition-colors duration-200">
+        <img src="${item.bestThumbnail.url}" class="w-24 h-24 object-cover rounded-md" alt="Thumbnail">
+        <form method="post" action="/get" class="flex-1 flex items-center space-x-4">
+            <input type="hidden" name="videoId" value="${item.id}">
+            <input type="hidden" name="title" value="${item.title}">
+            <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="text-red-600 hover:underline">${item.title}, ${item.duration}</a>
+        </form>
+    </li>`;
+
 }
+
 function prepareLinkElement(item) {
-    const information=`${item.title}, duration: ${item.duration}`
+    const information = `${item.title}, duration: ${item.duration}`;
     const link = `/get/${item.id}`;
 
-    return `<li> 
-<a href="${link}">
-                <img src="${item.bestThumbnail.url}" style="width:100px; height:auto; border-radius:5px;"> 
-<p>${information}</p>`;
-
+    return `
+        <li class="flex items-center space-x-4 p-4 bg-white rounded-lg shadow-md hover:bg-gray-100 transition-colors duration-200">
+            <a href="${link}" class="flex items-center space-x-4 w-full">
+                <img src="${item.bestThumbnail.url}" class="w-24 h-24 object-cover rounded-md" alt="Thumbnail">
+                <p class="text-gray-700">${information}</p>
+            </a>
+        </li>`;
 }
+
 
 async function downloadYTvideo(videoId, title) {
     return new Promise(async (resolve, reject) => {

@@ -2,21 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Viewport meta tag for responsiveness -->
     <title>Download option</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
     <link rel="shortcut icon" href="../img/favicon.ico" type="image/x-icon">
-
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Custom styles for YouTube colors */
+        .yt-red {
+            background-color: #FF0000;
+        }
+        .hover\:yt-red:hover {
+            background-color: #E62117;
+        }
+    </style>
 </head>
-<body>
-<main class="container">
-
-<h1>Download option</h1>
-<form action="/downloadOption" method="post">
-    <input type="radio" checked value="video" name="downloadType" id="video">Download video
-    <input type="radio" value="audio" name="downloadType" id="audio">Download audio
-    <input type="submit" value="Download video ">
-</form>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+<main class="container mx-auto p-4 md:p-8">
+    <h1 class="text-2xl md:text-4xl font-bold mb-4 text-red-600">Download option</h1>
+    <form action="/downloadOption" method="post" class="space-y-4">
+        <div class="flex items-center space-x-4">
+            <label for="video" class="text-lg">Download video</label>
+            <input type="radio" checked value="video" name="downloadType" id="video">
+        </div>
+        <div class="flex items-center space-x-4">
+            <label for="audio" class="text-lg">Download audio</label>
+            <input type="radio" value="audio" name="downloadType" id="audio">
+        </div>
+        <div>
+            <input type="submit" value="Download video" class="yt-red text-white px-4 py-2 rounded hover:yt-red focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50">
+        </div>
+    </form>
 </main>
-
 </body>
 </html>
