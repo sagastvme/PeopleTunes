@@ -83,7 +83,6 @@ module.exports = function (app) {
         if (values.includes(selectedOption) && tempId) {
             const newUrl = 'https://www.youtube.com/watch?v=' + tempId;
             const info = await ytdl.getInfo(newUrl);
-            console.log(info.videoDetails.title)
             const title = sanitizeFilename(info.videoDetails.title); // Sanitize the title
             try {
                 const filePath = await customDownload(newUrl, selectedOption);
